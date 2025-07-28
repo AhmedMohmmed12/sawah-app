@@ -15,6 +15,21 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    
+                    @if(Auth::user()->hasRole('user'))
+                        <x-nav-link :href="route('explore')" :active="request()->routeIs('explore')">
+                            {{ __('Explore') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('destination.suggest')" :active="request()->routeIs('destination.*')">
+                            {{ __('Find Destination') }}
+                        </x-nav-link>
+                    @endif
+                    
+                    @if(Auth::user()->hasRole('manager'))
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                            {{ __('Admin Panel') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +85,21 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            
+            @if(Auth::user()->hasRole('user'))
+                <x-responsive-nav-link :href="route('explore')" :active="request()->routeIs('explore')">
+                    {{ __('Explore') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('destination.suggest')" :active="request()->routeIs('destination.*')">
+                    {{ __('Find Destination') }}
+                </x-responsive-nav-link>
+            @endif
+            
+            @if(Auth::user()->hasRole('manager'))
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                    {{ __('Admin Panel') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

@@ -12,14 +12,25 @@
                     <h1 class="hero-title">Tourism made easy and smart.</h1>
                     <p class="hero-subtitle">Plan the trip of your dreams with personalized recommendations and smart travel insights.</p>
                     <div class="hero-actions">
-                        <a href="{{ route('destination.suggest') }}" class="hero-btn primary">
-                            <i class="fas fa-compass"></i>
-                            <span>Suggest a Destination</span>
-                        </a>
-                        <a href="{{ route('explore') }}" class="hero-btn secondary">
-                            <i class="fas fa-globe"></i>
-                            <span>Explore Destinations</span>
-                        </a>
+                        @auth
+                            <a href="{{ route('destination.suggest') }}" class="hero-btn primary">
+                                <i class="fas fa-compass"></i>
+                                <span>Suggest a Destination</span>
+                            </a>
+                            <a href="{{ route('explore') }}" class="hero-btn secondary">
+                                <i class="fas fa-globe"></i>
+                                <span>Explore Destinations</span>
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="hero-btn primary">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Login to Get Started</span>
+                            </a>
+                            <a href="{{ route('register') }}" class="hero-btn secondary">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Create Account</span>
+                            </a>
+                        @endauth
                     </div>
                 </div>
                 <div class="col-lg-4 text-center">
@@ -46,9 +57,15 @@
                         <div class="destination-image">
                             <img src="{{ $country->image }}" alt="{{ $country->name }}">
                             <div class="destination-overlay">
-                                <a href="{{ route('country.show', $country->id) }}" class="explore-btn">
-                                    <i class="fas fa-arrow-right"></i>
-                                </a>
+                                @auth
+                                    <a href="{{ route('country.show', $country->id) }}" class="explore-btn">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                @else
+                                    <a href="{{ route('login') }}" class="explore-btn">
+                                        <i class="fas fa-lock"></i>
+                                    </a>
+                                @endauth
                             </div>
                         </div>
                         <div class="destination-content">
@@ -71,10 +88,17 @@
             </div>
             
             <div class="text-center mt-5 mb-0">
-                <a href="{{ route('explore') }}" class="view-all-btn">
-                    <span>View All Destinations</span>
-                    <i class="fas fa-arrow-right"></i>
-                </a>
+                @auth
+                    <a href="{{ route('explore') }}" class="view-all-btn">
+                        <span>View All Destinations</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="view-all-btn">
+                        <span>Login to Explore More</span>
+                        <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                @endauth
             </div>
         </div>
     </section>
@@ -232,7 +256,7 @@
     50% { transform: translateY(-10px); }
 }
 
-.destinations-section, .features-section, .stats-section {
+.destinations-section, .features-section, .stats-section, .cta-section {
     padding: 4rem 0;
     margin-bottom: 0;
 }
@@ -439,6 +463,68 @@
     letter-spacing: 0.5px;
 }
 
+.cta-section {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: 2rem;
+    margin: 2rem 0 0 0;
+}
+
+.cta-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.cta-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 2rem;
+}
+
+.cta-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.cta-btn.primary {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    color: white;
+}
+
+.cta-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+    color: white;
+}
+
+.cta-btn.secondary {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border-color: rgba(255,255,255,0.3);
+}
+
+.cta-btn.secondary:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-3px);
+    color: white;
+}
+
 /* Remove any bottom spacing from the last section */
 .stats-section:last-child {
     margin-bottom: 0 !important;
@@ -471,6 +557,15 @@
     
     .stat-number {
         font-size: 2.5rem;
+    }
+    
+    .cta-title {
+        font-size: 2rem;
+    }
+    
+    .cta-actions {
+        flex-direction: column;
+        align-items: center;
     }
 }
 </style>

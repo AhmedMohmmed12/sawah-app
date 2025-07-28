@@ -17,8 +17,22 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Display the admin's profile form.
+     */
+    public function adminEdit(Request $request): View
+    {
+        $user = $request->user();
+        
+        return view('profile.admin-edit', [
+            'user' => $user,
         ]);
     }
 
@@ -27,8 +41,15 @@ class ProfileController extends Controller
      */
     public function overview(Request $request): View
     {
+        $user = $request->user();
+        
+        // If user is admin, redirect to admin profile edit
+        if ($user->hasRole('manager')) {
+            return redirect()->route('admin.profile.edit');
+        }
+        
         return view('profile.overview', [
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 
@@ -44,6 +65,11 @@ class ProfileController extends Controller
         }
 
         $request->user()->save();
+
+        // Check if the request came from admin route
+        if ($request->route()->getPrefix() === 'admin') {
+            return Redirect::route('admin.profile.edit')->with('status', 'Profile updated successfully.');
+        }
 
         return Redirect::route('profile.edit')->with('status', 'Profile updated successfully.');
     }

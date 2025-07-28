@@ -104,12 +104,19 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('home') }}">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('explore') }}">Explore</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('destination.suggest') }}">Suggest Destination</a>
-                    </li>
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('explore') }}">Explore</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('destination.suggest') }}">Suggest Destination</a>
+                        </li>
+                        @if(auth()->user()->isManager())
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Panel</a>
+                            </li>
+                        @endif
+                    @endauth
                 </ul>
                 
                 <ul class="navbar-nav">
@@ -117,11 +124,23 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user-circle"></i> {{ Auth::user()->name }}
+                                @if(auth()->user()->isManager())
+                                    <span class="badge bg-warning text-dark ms-1">Manager</span>
+                                @endif
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
                                 <li><a class="dropdown-item" href="{{ route('profile.overview') }}">Profile Overview</a></li>
                                 <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Edit Profile</a></li>
+                                
+                                @if(auth()->user()->isManager())
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.countries.index') }}">Manage Countries</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.attractions.index') }}">Manage Attractions</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.hotels.index') }}">Manage Hotels</a></li>
+                                @endif
+                                
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}" class="d-inline">

@@ -26,6 +26,7 @@ class User extends Authenticatable
         'travel_interests',
         'search_count',
         'favorites_count',
+        'role',
     ];
 
     /**
@@ -66,5 +67,29 @@ class User extends Authenticatable
     public function setTravelInterestsAttribute($value)
     {
         $this->attributes['travel_interests'] = is_array($value) ? json_encode($value) : $value;
+    }
+
+    /**
+     * Check if user is a manager
+     */
+    public function isManager(): bool
+    {
+        return $this->role === 'manager';
+    }
+
+    /**
+     * Check if user is a regular user
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
+
+    /**
+     * Check if user has manager role
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
     }
 }

@@ -1,3 +1,213 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Bootstrap CSS is loaded via CDN in the layout file */
+/* Custom styles for Sawah application */
+
+/* Custom button styles */
+.btn-orange {
+    background-color: #ff6b35;
+    border-color: #ff6b35;
+    color: white;
+}
+
+.btn-orange:hover {
+    background-color: #e55a2d;
+    border-color: #e55a2d;
+    color: white;
+}
+
+/* Custom navbar styles */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: white !important;
+}
+
+.navbar-nav .dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.navbar-nav .dropdown-item:hover {
+    background-color: #ff6b35;
+    color: white;
+}
+
+/* Card hover effects */
+.card-hover:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}
+
+/* Country card styles */
+.country-card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.attraction-img {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Map container styles */
+.map-container {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+/* Fix pagination styling */
+.pagination {
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.pagination .page-link {
+    color: #ff6b35;
+    border-color: #dee2e6;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #ff6b35;
+    border-color: #ff6b35;
+    color: white;
+}
+
+.pagination .page-link:hover {
+    color: #e55a2d;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+/* Fix oversized pagination arrows */
+.pagination .page-link svg,
+.pagination .page-link i {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+}
+
+/* Override any Tailwind pagination styles */
+.pagination .page-link[rel="prev"],
+.pagination .page-link[rel="next"] {
+    font-size: 0.875rem !important;
+    padding: 0.375rem 0.75rem !important;
+}
+
+.pagination .page-link[rel="prev"]::before,
+.pagination .page-link[rel="next"]::after {
+    font-size: 0.875rem !important;
+}
+
+/* Ensure Bootstrap pagination overrides Tailwind */
+.pagination {
+    display: flex !important;
+    padding-left: 0 !important;
+    list-style: none !important;
+    border-radius: 0.375rem !important;
+}
+
+.pagination .page-item {
+    margin: 0 0.125rem !important;
+}
+
+.pagination .page-item:first-child .page-link {
+    margin-left: 0 !important;
+    border-top-left-radius: 0.375rem !important;
+    border-bottom-left-radius: 0.375rem !important;
+}
+
+.pagination .page-item:last-child .page-link {
+    border-top-right-radius: 0.375rem !important;
+    border-bottom-right-radius: 0.375rem !important;
+}
+
+/* Remove any bottom spacing issues */
+main {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+footer {
+    margin-top: 0 !important;
+}
+
+body {
+    margin-bottom: 0 !important;
+}
+
+.container-fluid, .container {
+    margin-bottom: 0 !important;
+}
+
+.row {
+    margin-bottom: 0 !important;
+}
+
+.col, .col-md-6, .col-md-12 {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Override any Tailwind CSS that might be interfering */
+* {
+    box-sizing: border-box;
+}
+
+/* Ensure Bootstrap styles take precedence */
+.btn, .btn-primary, .btn-success, .btn-warning, .btn-danger, .btn-secondary {
+    display: inline-block !important;
+    font-weight: 400 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    user-select: none !important;
+    border: 1px solid transparent !important;
+    padding: 0.375rem 0.75rem !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    border-radius: 0.25rem !important;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.table {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+    color: #212529 !important;
+    vertical-align: top !important;
+    border-color: #dee2e6 !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: rgba(0, 0, 0, 0.05) !important;
+    color: var(--bs-table-striped-color) !important;
+}
+
+.table-hover > tbody > tr:hover > * {
+    --bs-table-hover-bg: rgba(0, 0, 0, 0.075) !important;
+    color: var(--bs-table-hover-color) !important;
+}
+
+.table-dark {
+    --bs-table-bg: #212529 !important;
+    --bs-table-striped-bg: #2c3034 !important;
+    --bs-table-striped-color: #fff !important;
+    --bs-table-active-bg: #373b3e !important;
+    --bs-table-active-color: #fff !important;
+    --bs-table-hover-bg: #323539 !important;
+    --bs-table-hover-color: #fff !important;
+    color: #fff !important;
+    border-color: #373b3e !important;
+}

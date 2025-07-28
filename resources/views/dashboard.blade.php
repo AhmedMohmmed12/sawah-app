@@ -10,20 +10,39 @@
             <div class="row align-items-center">
                 <div class="col-lg-8">
                     <h1 class="hero-title">Welcome back, {{ Auth::user()->name }}! 👋</h1>
-                    <p class="hero-subtitle">Ready to plan your next adventure? Let's explore the world together.</p>
+                    @if(Auth::user()->hasRole('user'))
+                        <p class="hero-subtitle">Ready to plan your next adventure? Let's explore the world together.</p>
+                    @else
+                        <p class="hero-subtitle">Welcome to the admin panel. Manage your travel platform content efficiently.</p>
+                    @endif
                     <div class="hero-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">{{ Auth::user()->search_count ?? 0 }}</span>
-                            <span class="stat-label">Searches</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">{{ Auth::user()->favorites_count ?? 0 }}</span>
-                            <span class="stat-label">Favorites</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">{{ App\Models\Country::count() }}</span>
-                            <span class="stat-label">Countries</span>
-                        </div>
+                        @if(Auth::user()->hasRole('user'))
+                            <div class="stat-item">
+                                <span class="stat-number">{{ Auth::user()->search_count ?? 0 }}</span>
+                                <span class="stat-label">Searches</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ Auth::user()->favorites_count ?? 0 }}</span>
+                                <span class="stat-label">Favorites</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ App\Models\Country::count() }}</span>
+                                <span class="stat-label">Countries</span>
+                            </div>
+                        @else
+                            <div class="stat-item">
+                                <span class="stat-number">{{ App\Models\Country::count() }}</span>
+                                <span class="stat-label">Countries</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ App\Models\Attraction::count() }}</span>
+                                <span class="stat-label">Attractions</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ App\Models\Hotel::count() }}</span>
+                                <span class="stat-label">Hotels</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div class="col-lg-4 text-center">
@@ -43,53 +62,87 @@
         </div>
         
         <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="action-card explore-card">
-                    <div class="card-icon">
-                        <i class="fas fa-compass"></i>
-                    </div>
-                    <div class="card-content">
-                        <h3>Explore Destinations</h3>
-                        <p>Discover amazing countries and their unique attractions around the world.</p>
-                        <a href="{{ route('explore') }}" class="action-btn">
-                            <span>Explore Now</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="action-card search-card">
-                    <div class="card-icon">
-                        <i class="fas fa-search-location"></i>
-                    </div>
-                    <div class="card-content">
-                        <h3>Find Your Destination</h3>
-                        <p>Get personalized recommendations based on your preferences and budget.</p>
-                        <a href="{{ route('destination.suggest') }}" class="action-btn">
-                            <span>Find Destination</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+            @if(Auth::user()->hasRole('user'))
+                <div class="col-lg-4 col-md-6">
+                    <div class="action-card explore-card">
+                        <div class="card-icon">
+                            <i class="fas fa-compass"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Explore Destinations</h3>
+                            <p>Discover amazing countries and their unique attractions around the world.</p>
+                            <a href="{{ route('explore') }}" class="action-btn">
+                                <span>Explore Now</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="action-card profile-card">
-                    <div class="card-icon">
-                        <i class="fas fa-user-cog"></i>
-                    </div>
-                    <div class="card-content">
-                        <h3>Manage Profile</h3>
-                        <p>Update your preferences and travel interests for better recommendations.</p>
-                        <a href="{{ route('profile.overview') }}" class="action-btn">
-                            <span>View Profile</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="action-card search-card">
+                        <div class="card-icon">
+                            <i class="fas fa-search-location"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Find Your Destination</h3>
+                            <p>Get personalized recommendations based on your preferences and budget.</p>
+                            <a href="{{ route('destination.suggest') }}" class="action-btn">
+                                <span>Find Destination</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="action-card profile-card">
+                        <div class="card-icon">
+                            <i class="fas fa-user-cog"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Manage Profile</h3>
+                            <p>Update your preferences and travel interests for better recommendations.</p>
+                            <a href="{{ route('profile.overview') }}" class="action-btn">
+                                <span>View Profile</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="col-lg-6 col-md-6">
+                    <div class="action-card admin-card">
+                        <div class="card-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Admin Panel</h3>
+                            <p>Access the admin dashboard to manage countries, attractions, and hotels.</p>
+                            <a href="{{ route('admin.dashboard') }}" class="action-btn">
+                                <span>Go to Admin Panel</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 col-md-6">
+                    <div class="action-card profile-card">
+                        <div class="card-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Admin Profile</h3>
+                            <p>Manage your admin account settings and preferences.</p>
+                            <a href="{{ route('admin.profile.edit') }}" class="action-btn">
+                                <span>View Profile</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -97,7 +150,11 @@
     <div class="container mt-5">
         <div class="section-header">
             <h2 class="section-title">Platform Overview</h2>
-            <p class="section-subtitle">Discover what's available on Sawah</p>
+            @if(Auth::user()->hasRole('user'))
+                <p class="section-subtitle">Discover what's available on Sawah</p>
+            @else
+                <p class="section-subtitle">Platform statistics and management overview</p>
+            @endif
         </div>
         
         <div class="row g-4">
@@ -137,17 +194,31 @@
                 </div>
             </div>
             
-            <div class="col-lg-3 col-md-6">
-                <div class="stat-card users-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ App\Models\User::count() }}</h3>
-                        <p>Registered Users</p>
+            @if(Auth::user()->hasRole('user'))
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card users-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ App\Models\User::count() }}</h3>
+                            <p>Registered Users</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @else
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card users-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ App\Models\User::where('role', 'user')->count() }}</h3>
+                            <p>Regular Users</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -164,8 +235,13 @@
                             <i class="fas fa-info-circle"></i>
                         </div>
                         <div class="activity-content">
-                            <h4>Welcome to Sawah!</h4>
-                            <p>This is your personal travel hub. As you explore destinations and save favorites, your activity will appear here to help you track your travel planning journey.</p>
+                            @if(Auth::user()->hasRole('user'))
+                                <h4>Welcome to Sawah!</h4>
+                                <p>This is your personal travel hub. As you explore destinations and save favorites, your activity will appear here to help you track your travel planning journey.</p>
+                            @else
+                                <h4>Welcome to Sawah Admin!</h4>
+                                <p>This is your admin dashboard. You can manage countries, attractions, and hotels from the admin panel. Use the navigation above to access different management sections.</p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -177,18 +253,33 @@
                         <h2 class="section-title">Travel Tips</h2>
                     </div>
                     <div class="tips-card">
-                        <div class="tip-item">
-                            <i class="fas fa-lightbulb"></i>
-                            <span>Update your travel preferences for better recommendations</span>
-                        </div>
-                        <div class="tip-item">
-                            <i class="fas fa-lightbulb"></i>
-                            <span>Save your favorite destinations for quick access</span>
-                        </div>
-                        <div class="tip-item">
-                            <i class="fas fa-lightbulb"></i>
-                            <span>Use the destination finder to discover new places</span>
-                        </div>
+                        @if(Auth::user()->hasRole('user'))
+                            <div class="tip-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Update your travel preferences for better recommendations</span>
+                            </div>
+                            <div class="tip-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Save your favorite destinations for quick access</span>
+                            </div>
+                            <div class="tip-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Use the destination finder to discover new places</span>
+                            </div>
+                        @else
+                            <div class="tip-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Regularly update country information for better user experience</span>
+                            </div>
+                            <div class="tip-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Add high-quality images for attractions and hotels</span>
+                            </div>
+                            <div class="tip-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Keep hotel pricing and attraction details current</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -314,6 +405,10 @@
 
 .profile-card .card-icon {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.admin-card .card-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .card-content h3 {

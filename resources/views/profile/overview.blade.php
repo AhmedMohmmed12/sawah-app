@@ -10,20 +10,39 @@
             <div class="row align-items-center">
                 <div class="col-lg-8">
                     <h1 class="profile-title">Profile Overview</h1>
-                    <p class="profile-subtitle">Your travel journey with Sawah</p>
+                    @if($user->hasRole('user'))
+                        <p class="profile-subtitle">Your travel journey with Sawah</p>
+                    @else
+                        <p class="profile-subtitle">Admin profile and platform management</p>
+                    @endif
                     <div class="profile-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">{{ $user->search_count }}</span>
-                            <span class="stat-label">Searches</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">{{ $user->favorites_count }}</span>
-                            <span class="stat-label">Favorites</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">{{ $user->created_at->diffInDays(now()) }}</span>
-                            <span class="stat-label">Days</span>
-                        </div>
+                        @if($user->hasRole('user'))
+                            <div class="stat-item">
+                                <span class="stat-number">{{ $user->search_count }}</span>
+                                <span class="stat-label">Searches</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ $user->favorites_count }}</span>
+                                <span class="stat-label">Favorites</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ $user->created_at->diffInDays(now()) }}</span>
+                                <span class="stat-label">Days</span>
+                            </div>
+                        @else
+                            <div class="stat-item">
+                                <span class="stat-number">{{ App\Models\Country::count() }}</span>
+                                <span class="stat-label">Countries</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ App\Models\Attraction::count() }}</span>
+                                <span class="stat-label">Attractions</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ App\Models\Hotel::count() }}</span>
+                                <span class="stat-label">Hotels</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div class="col-lg-4 text-center">
@@ -41,62 +60,64 @@
             <div class="row g-4">
                 <!-- Left Column -->
                 <div class="col-lg-8">
-                    <!-- Travel Preferences -->
-                    <div class="preferences-card">
-                        <div class="card-header">
-                            <div class="header-icon">
-                                <i class="fas fa-cog"></i>
+                    @if($user->hasRole('user'))
+                        <!-- Travel Preferences -->
+                        <div class="preferences-card">
+                            <div class="card-header">
+                                <div class="header-icon">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <h2>Your Travel Preferences</h2>
                             </div>
-                            <h2>Your Travel Preferences</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="preferences-grid">
-                                <div class="preference-item">
-                                    <div class="preference-icon">
-                                        <i class="fas fa-cloud-sun"></i>
+                            <div class="card-body">
+                                <div class="preferences-grid">
+                                    <div class="preference-item">
+                                        <div class="preference-icon">
+                                            <i class="fas fa-cloud-sun"></i>
+                                        </div>
+                                        <div class="preference-content">
+                                            <h3>Preferred Climate</h3>
+                                            @if($user->preferred_climate)
+                                                <span class="preference-value">{{ ucfirst($user->preferred_climate) }}</span>
+                                            @else
+                                                <span class="preference-empty">Not set</span>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="preference-content">
-                                        <h3>Preferred Climate</h3>
-                                        @if($user->preferred_climate)
-                                            <span class="preference-value">{{ ucfirst($user->preferred_climate) }}</span>
-                                        @else
-                                            <span class="preference-empty">Not set</span>
-                                        @endif
+                                    
+                                    <div class="preference-item">
+                                        <div class="preference-icon">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </div>
+                                        <div class="preference-content">
+                                            <h3>Budget Range</h3>
+                                            @if($user->budget_range)
+                                                <span class="preference-value">{{ $user->budget_range }}</span>
+                                            @else
+                                                <span class="preference-empty">Not set</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="preference-item">
-                                    <div class="preference-icon">
-                                        <i class="fas fa-dollar-sign"></i>
+                                @if($user->travel_interests && count($user->travel_interests) > 0)
+                                    <div class="interests-section">
+                                        <h3>Travel Interests</h3>
+                                        <div class="interests-grid">
+                                            @foreach($user->travel_interests as $interest)
+                                                <span class="interest-badge">{{ ucfirst($interest) }}</span>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                    <div class="preference-content">
-                                        <h3>Budget Range</h3>
-                                        @if($user->budget_range)
-                                            <span class="preference-value">{{ $user->budget_range }}</span>
-                                        @else
-                                            <span class="preference-empty">Not set</span>
-                                        @endif
+                                @else
+                                    <div class="interests-section">
+                                        <h3>Travel Interests</h3>
+                                        <p class="no-interests">No interests selected yet</p>
                                     </div>
-                                </div>
+                                @endif
                             </div>
-                            
-                            @if($user->travel_interests && count($user->travel_interests) > 0)
-                                <div class="interests-section">
-                                    <h3>Travel Interests</h3>
-                                    <div class="interests-grid">
-                                        @foreach($user->travel_interests as $interest)
-                                            <span class="interest-badge">{{ ucfirst($interest) }}</span>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @else
-                                <div class="interests-section">
-                                    <h3>Travel Interests</h3>
-                                    <p class="no-interests">No interests selected yet</p>
-                                </div>
-                            @endif
                         </div>
-                    </div>
+                    @endif
 
                     <!-- Recent Activity -->
                     <div class="activity-card">
@@ -107,30 +128,45 @@
                             <h2>Recent Activity</h2>
                         </div>
                         <div class="card-body">
-                            @if($user->search_count > 0)
+                            @if($user->hasRole('user'))
+                                @if($user->search_count > 0)
+                                    <div class="activity-message success">
+                                        <div class="message-icon">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div class="message-content">
+                                            <h4>Great Progress!</h4>
+                                            <p>You've searched for {{ $user->search_count }} destination{{ $user->search_count > 1 ? 's' : '' }}.
+                                            @if($user->search_count < 5)
+                                                Keep exploring to discover more amazing places!
+                                            @else
+                                                You're becoming a travel expert!
+                                            @endif</p>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="activity-message warning">
+                                        <div class="message-icon">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <div class="message-content">
+                                            <h4>Get Started!</h4>
+                                            <p>You haven't searched for any destinations yet. 
+                                            <a href="{{ route('destination.suggest') }}">Start exploring now</a>.</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            @else
                                 <div class="activity-message success">
                                     <div class="message-icon">
-                                        <i class="fas fa-check-circle"></i>
+                                        <i class="fas fa-shield-alt"></i>
                                     </div>
                                     <div class="message-content">
-                                        <h4>Great Progress!</h4>
-                                        <p>You've searched for {{ $user->search_count }} destination{{ $user->search_count > 1 ? 's' : '' }}.
-                                        @if($user->search_count < 5)
-                                            Keep exploring to discover more amazing places!
-                                        @else
-                                            You're becoming a travel expert!
-                                        @endif</p>
-                                    </div>
-                                </div>
-                            @else
-                                <div class="activity-message warning">
-                                    <div class="message-icon">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                    </div>
-                                    <div class="message-content">
-                                        <h4>Get Started!</h4>
-                                        <p>You haven't searched for any destinations yet. 
-                                        <a href="{{ route('destination.suggest') }}">Start exploring now</a>.</p>
+                                        <h4>Admin Dashboard</h4>
+                                        <p>You have access to manage {{ App\Models\Country::count() }} countries, 
+                                        {{ App\Models\Attraction::count() }} attractions, and 
+                                        {{ App\Models\Hotel::count() }} hotels. 
+                                        <a href="{{ route('admin.dashboard') }}">Go to admin panel</a>.</p>
                                     </div>
                                 </div>
                             @endif
@@ -164,14 +200,16 @@
                                     <i class="fas fa-edit"></i>
                                     <span>Edit Profile</span>
                                 </a>
-                                <a href="{{ route('destination.suggest') }}" class="action-item">
-                                    <i class="fas fa-search"></i>
-                                    <span>Find Destination</span>
-                                </a>
-                                <a href="{{ route('explore') }}" class="action-item">
-                                    <i class="fas fa-globe"></i>
-                                    <span>Explore Destinations</span>
-                                </a>
+                                @if($user->hasRole('user'))
+                                    <a href="{{ route('destination.suggest') }}" class="action-item">
+                                        <i class="fas fa-search"></i>
+                                        <span>Find Destination</span>
+                                    </a>
+                                    <a href="{{ route('explore') }}" class="action-item">
+                                        <i class="fas fa-globe"></i>
+                                        <span>Explore Destinations</span>
+                                    </a>
+                                @endif
                                 <a href="{{ route('dashboard') }}" class="action-item">
                                     <i class="fas fa-tachometer-alt"></i>
                                     <span>Dashboard</span>
@@ -190,18 +228,33 @@
                         </div>
                         <div class="card-body">
                             <div class="tips-list">
-                                <div class="tip-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Set your travel preferences for better recommendations</span>
-                                </div>
-                                <div class="tip-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Explore different countries and their attractions</span>
-                                </div>
-                                <div class="tip-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Use the destination finder for personalized suggestions</span>
-                                </div>
+                                @if($user->hasRole('user'))
+                                    <div class="tip-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Set your travel preferences for better recommendations</span>
+                                    </div>
+                                    <div class="tip-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Explore different countries and their attractions</span>
+                                    </div>
+                                    <div class="tip-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Use the destination finder for personalized suggestions</span>
+                                    </div>
+                                @else
+                                    <div class="tip-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Manage platform content efficiently</span>
+                                    </div>
+                                    <div class="tip-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Keep country and attraction information updated</span>
+                                    </div>
+                                    <div class="tip-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Monitor user activity and platform statistics</span>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
