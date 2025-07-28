@@ -5,9 +5,15 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
+                    @if(Auth::user()->hasRole('manager'))
+                        <a href="{{ route('admin.dashboard') }}">
+                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                        </a>
+                    @else
+                        <a href="{{ route('dashboard') }}">
+                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                        </a>
+                    @endif
                 </div>
 
                 <!-- Navigation Links -->
@@ -49,9 +55,15 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+                        @if(Auth::user()->hasRole('manager'))
+                            <x-dropdown-link :href="route('admin.profile.edit')">
+                                {{ __('Admin Profile') }}
+                            </x-dropdown-link>
+                        @else
+                            <x-dropdown-link :href="route('profile.edit')">
+                                {{ __('Profile') }}
+                            </x-dropdown-link>
+                        @endif
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
@@ -110,9 +122,15 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
+                @if(Auth::user()->hasRole('manager'))
+                    <x-responsive-nav-link :href="route('admin.profile.edit')">
+                        {{ __('Admin Profile') }}
+                    </x-responsive-nav-link>
+                @else
+                    <x-responsive-nav-link :href="route('profile.edit')">
+                        {{ __('Profile') }}
+                    </x-responsive-nav-link>
+                @endif
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">

@@ -79,12 +79,6 @@
                                         Admin Profile
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('dashboard') }}">
-                                        <i class="fas fa-home me-2"></i>
-                                        User Dashboard
-                                    </a>
-                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}" class="d-inline">

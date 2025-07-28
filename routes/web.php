@@ -10,8 +10,14 @@ use App\Http\Controllers\Admin\CountryController as AdminCountryController;
 use App\Http\Controllers\Admin\AttractionController as AdminAttractionController;
 use App\Http\Controllers\Admin\HotelController as AdminHotelController;
 
-// Public routes (accessible to everyone)
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// Public routes (accessible to everyone except admin users)
+Route::get('/', function () {
+    // Redirect admin users to admin dashboard
+    if (Auth::check() && Auth::user()->hasRole('manager')) {
+        return redirect()->route('admin.dashboard');
+    }
+    return app(HomeController::class)->index();
+})->name('home');
 
 // Routes for authenticated users only (excluding admin users)
 Route::middleware(['auth'])->group(function () {
