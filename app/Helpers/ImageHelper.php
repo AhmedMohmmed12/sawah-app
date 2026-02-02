@@ -20,8 +20,13 @@ class ImageHelper
             return $imagePath;
         }
 
-        // If it's a local file path, use Storage::url
-        return Storage::url($imagePath);
+        // If it's a local file path, ensure it starts with the correct path
+        // This ensures the path is properly formatted for Storage::url
+        if (!str_starts_with($imagePath, 'public/')) {
+            $imagePath = 'public/' . ltrim($imagePath, '/');
+        }
+
+        return Storage::url(str_replace('public/', '', $imagePath));
     }
 
     /**

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->json('travel_interests')->nullable();
             $table->integer('search_count')->default(0);
             $table->integer('favorites_count')->default(0);
-            $table->enum('role', ['user', 'manager'])->default('user');
         });
     }
 
@@ -32,8 +31,7 @@ return new class extends Migration
                 'budget_range',
                 'travel_interests',
                 'search_count',
-                'favorites_count',
-                'role'
+                'favorites_count'
             ]);
         });
     }

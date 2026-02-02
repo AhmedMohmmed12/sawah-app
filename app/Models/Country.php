@@ -15,6 +15,13 @@ class Country extends Model
         'image', 'description'
     ];
 
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return \App\Helpers\ImageHelper::getImageUrl($this->image);
+    }
+
     public function attractions()
     {
         return $this->hasMany(Attraction::class);

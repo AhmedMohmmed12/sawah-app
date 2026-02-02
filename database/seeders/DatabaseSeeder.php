@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             CountrySeeder::class,
             AttractionSeeder::class,
             HotelSeeder::class,
+            ManagerUserSeeder::class,
         ]);
     }
 }

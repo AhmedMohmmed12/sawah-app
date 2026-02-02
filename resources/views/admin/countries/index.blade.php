@@ -41,7 +41,7 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 @if($country->image)
-                                                    <img class="rounded-circle me-3" src="{{ $country->image }}" alt="{{ $country->name }}" width="40" height="40" style="object-fit: cover;">
+                                                    <img class="rounded-circle me-3" src="{{ $country->image_url }}" alt="{{ $country->name }}" width="40" height="40" style="object-fit: cover;">
                                                 @endif
                                                 <div>
                                                     <div class="fw-bold">{{ $country->name }}</div>
