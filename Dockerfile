@@ -14,14 +14,17 @@ RUN apt-get update && apt-get install -y \
     && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache mod_rewrite for Laravel routing
+# Enable Apache mod_rewrite
 RUN a2enmod rewrite
+
+# Allow .htaccess overrides
+RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # Install PHP extensions for Laravel
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql gd
 
-# Set Apache Document Root to /public
+# Set Apache Document Root to Laravel's public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
     && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
@@ -29,7 +32,7 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory to Laravel root (not /public)
+# Set working directory
 WORKDIR /var/www/html
 
 # Copy application code
@@ -38,10 +41,10 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Install Node dependencies and build frontend assets
+# Install Node dependencies and build frontend
 RUN npm ci && npm run build
 
-# Set Laravel permissions
+# Set proper permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 # Expose port 80
