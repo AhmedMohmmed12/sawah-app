@@ -2,87 +2,49 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Country;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CountrySeeder extends Seeder
 {
-    public function run()
-    {
-        $countries = [
-            [
-                'name' => 'Italy',
-                'code' => 'IT',
-                'currency' => 'EUR',
-                'exchange_rate_to_sar' => 4.10,
-                'climate' => 'Mild',
-                'daily_budget_min' => 100,
-                'daily_budget_max' => 300,
-                'image' => 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&h=600&fit=crop',
-                'description' => 'Italy is known for its rich history, art, and cuisine.'
-            ],
-            [
-                'name' => 'France',
-                'code' => 'FR',
-                'currency' => 'EUR',
-                'exchange_rate_to_sar' => 4.10,
-                'climate' => 'Mild',
-                'daily_budget_min' => 120,
-                'daily_budget_max' => 350,
-                'image' => 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800&h=600&fit=crop',
-                'description' => 'France offers romance, culture, and world-class cuisine.'
-            ],
-            [
-                'name' => 'Japan',
-                'code' => 'JP',
-                'currency' => 'JPY',
-                'exchange_rate_to_sar' => 0.025,
-                'climate' => 'Mild',
-                'daily_budget_min' => 150,
-                'daily_budget_max' => 400,
-                'image' => 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&h=600&fit=crop',
-                'description' => 'Japan blends ancient traditions with cutting-edge technology.'
-            ],
-            [
-                'name' => 'Thailand',
-                'code' => 'TH',
-                'currency' => 'THB',
-                'exchange_rate_to_sar' => 0.11,
-                'climate' => 'Warm',
-                'daily_budget_min' => 50,
-                'daily_budget_max' => 150,
-                'image' => 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&h=600&fit=crop',
-                'description' => 'Thailand offers tropical beaches, temples, and delicious street food.'
-            ],
-            [
-                'name' => 'Spain',
-                'code' => 'ES',
-                'currency' => 'EUR',
-                'exchange_rate_to_sar' => 4.10,
-                'climate' => 'Warm',
-                'daily_budget_min' => 80,
-                'daily_budget_max' => 250,
-                'image' => 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&h=600&fit=crop',
-                'description' => 'Spain offers vibrant culture, beautiful beaches, and delicious tapas.'
-            ],
-            [
-                'name' => 'Singapore',
-                'code' => 'SG',
-                'currency' => 'SGD',
-                'exchange_rate_to_sar' => 2.75,
-                'climate' => 'Warm',
-                'daily_budget_min' => 200,
-                'daily_budget_max' => 500,
-                'image' => 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&h=600&fit=crop',
-                'description' => 'Singapore is a modern city-state with diverse culture and world-class attractions.'
-            ],
-        ];
+    /**
+     * Riyals per unit, used until `php artisan rates:update` fetches live
+     * rates (it runs automatically once a day).
+     */
+    private const FALLBACK_RATES = [
+        'EUR' => 4.35, 'GBP' => 5.02, 'CHF' => 4.66, 'JPY' => 0.0251, 'THB' => 0.115,
+        'SGD' => 2.90, 'TRY' => 0.090, 'AED' => 1.021, 'EGP' => 0.077, 'JOD' => 5.29,
+        'MAD' => 0.405, 'GEL' => 1.38, 'AZN' => 2.21, 'BAM' => 2.22, 'MYR' => 0.885,
+        'IDR' => 0.00023, 'MVR' => 0.243, 'KRW' => 0.0027,
+    ];
 
-        foreach ($countries as $country) {
-            Country::updateOrCreate(
-                ['code' => $country['code']], // Check for existing country by code
-                $country
-            );
+    public function run(): void
+    {
+        $data = require __DIR__.'/data/destinations.php';
+        $credits = require __DIR__.'/data/image-credits.php';
+
+        foreach ($data as $row) {
+            $slug = Str::slug($row['name']);
+            $key = "countries/{$slug}";
+            $existing = Country::where('name', $row['name'])->first();
+
+            Country::updateOrCreate(['name' => $row['name']], [
+                'slug' => $slug,
+                'code' => $row['code'],
+                'capital' => $row['capital'],
+                'region' => $row['region'],
+                'currency' => $row['currency'],
+                'exchange_rate_to_sar' => $existing?->exchange_rate_to_sar ?: self::FALLBACK_RATES[$row['currency']],
+                'climate' => $row['climate'],
+                'best_months' => $row['best_months'],
+                'daily_budget_min' => $row['budget'][0],
+                'daily_budget_max' => $row['budget'][1],
+                'description' => $row['description'],
+                'image' => isset($credits[$key]) ? "images/{$key}.jpg" : null,
+                'image_caption' => $row['caption'],
+                'image_credit' => $credits[$key]['credit'] ?? null,
+            ]);
         }
     }
 }

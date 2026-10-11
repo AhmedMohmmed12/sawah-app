@@ -14,13 +14,18 @@ class ManagerUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
+        $user = User::firstOrCreate(['email' => 'manager@sawah.com'], [
             'name' => 'Manager User',
-            'email' => 'manager@sawah.com',
             'password' => Hash::make('password'),
             'role' => 'manager',
             'email_verified_at' => now(),
         ]);
+
+        if (! $user->wasRecentlyCreated) {
+            $this->command->info('Manager user already exists, left unchanged.');
+
+            return;
+        }
 
         $this->command->info('Manager user created successfully!');
         $this->command->info('Email: manager@sawah.com');

@@ -20,6 +20,11 @@ class ImageHelper
             return $imagePath;
         }
 
+        // Seed photos shipped with the app in public/images
+        if (str_starts_with($imagePath, 'images/')) {
+            return asset($imagePath);
+        }
+
         // If it's a local file path, ensure it starts with the correct path
         // This ensures the path is properly formatted for Storage::url
         if (!str_starts_with($imagePath, 'public/')) {
