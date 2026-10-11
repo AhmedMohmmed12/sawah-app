@@ -1,108 +1,49 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>@yield('title', 'Admin Dashboard - Sawah')</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta name="robots" content="noindex">
+    <title>@yield('title', 'Admin') | Sawah admin</title>
+    @include('layouts.partials.head')
 </head>
-<body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
-        <!-- Admin Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
-                    <i class="fas fa-shield-alt me-2"></i>
-                    Sawah Admin
-                </a>
-                
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="adminNavbar">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" 
-                               href="{{ route('admin.dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-1"></i>
-                                Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.countries.*') ? 'active' : '' }}" 
-                               href="{{ route('admin.countries.index') }}">
-                                <i class="fas fa-flag me-1"></i>
-                                Countries
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.attractions.*') ? 'active' : '' }}" 
-                               href="{{ route('admin.attractions.index') }}">
-                                <i class="fas fa-camera me-1"></i>
-                                Attractions
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.hotels.*') ? 'active' : '' }}" 
-                               href="{{ route('admin.hotels.index') }}">
-                                <i class="fas fa-bed me-1"></i>
-                                Hotels
-                            </a>
-                        </li>
-                    </ul>
-
-                    <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-shield me-1"></i>
-                                {{ Auth::user()->name }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.profile.edit') }}">
-                                        <i class="fas fa-user-shield me-2"></i>
-                                        Admin Profile
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item">
-                                            <i class="fas fa-sign-out-alt me-2"></i>
-                                            Log Out
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+<body>
+<div class="admin" x-data="{ nav: false }">
+    <aside class="admin-side" :class="{ 'is-open': nav }" @click.outside="nav = false">
+        <a class="logo" href="{{ route('admin.dashboard') }}">sawah<span class="ar" lang="ar">سوّاح</span></a>
+        <div class="tagline">admin</div>
+        <nav>
+            <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'is-active' : '' }}"><x-icon name="dashboard" />Overview</a>
+            <span class="group">Content</span>
+            <a href="{{ route('admin.countries.index') }}" class="{{ request()->routeIs('admin.countries.*') ? 'is-active' : '' }}"><x-icon name="globe" />Countries</a>
+            <a href="{{ route('admin.hotels.index') }}" class="{{ request()->routeIs('admin.hotels.*') ? 'is-active' : '' }}"><x-icon name="bed" />Hotels</a>
+            <a href="{{ route('admin.attractions.index') }}" class="{{ request()->routeIs('admin.attractions.*') ? 'is-active' : '' }}"><x-icon name="ticket" />Things to do</a>
+            <span class="group">Account</span>
+            <a href="{{ route('admin.profile.edit') }}" class="{{ request()->routeIs('admin.profile.*') ? 'is-active' : '' }}"><x-icon name="settings" />Settings</a>
         </nav>
+        <div class="bottom">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit"><x-icon name="logout" />Sign out</button>
+            </form>
+        </div>
+    </aside>
 
-        <!-- Page Content -->
-        <main class="py-4">
+    <div class="admin-main">
+        <header class="admin-top">
+            <div class="row">
+                <button class="admin-burger" type="button" @click.stop="nav = !nav" aria-label="Menu"><x-icon name="menu" /></button>
+                <div class="crumbs">@yield('crumbs', 'Overview')</div>
+            </div>
+            <div class="me"><span class="avatar">{{ Str::upper(Str::substr(Auth::user()->name, 0, 1)) }}</span><span class="hide-sm">{{ Auth::user()->name }}</span></div>
+        </header>
+
+        <div class="admin-body">
+            <x-alerts />
             @yield('content')
-        </main>
+        </div>
     </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</div>
 </body>
-</html> 
+</html>

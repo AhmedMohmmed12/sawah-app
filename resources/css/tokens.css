@@ -1,0 +1,45 @@
+:root {
+    --navy: #0e2f3e;
+    --navy-2: #164456;
+    --navy-3: #1f5468;
+    --brand: #f0642d;
+    --brand-dark: #d4511c;
+    --brand-tint: #fff1ea;
+    --brand-line: #fbc9b4;
+
+    --text: #1f2933;
+    --muted: #66717d;
+    --faint: #9aa3ad;
+    --line: #e2e6ea;
+    --line-strong: #cfd5db;
+    --bg: #ffffff;
+    --bg-soft: #f5f7f9;
+    --warm: #f7f3ec;
+    --warm-line: #e4dccd;
+
+    --ok: #138a5b;
+    --ok-tint: #e7f5ee;
+    --danger: #c23b30;
+    --danger-tint: #fdecea;
+    --warn: #a86400;
+    --warn-tint: #fff4e0;
+    --star: #f5a623;
+
+    --sans: "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --serif: "Fraunces", Georgia, serif;
+    --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+    --arabic: "IBM Plex Sans Arabic", "Segoe UI", sans-serif;
+
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 12px;
+    --shadow: 0 6px 24px rgba(16, 32, 44, .12);
+    --shadow-sm: 0 4px 16px rgba(16, 32, 44, .08);
+
+    --wrap: 1200px;
+    --gutter: 24px;
+}
+
+@media (max-width: 900px) {
+    :root { --gutter: 16px; }
+}

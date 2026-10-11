@@ -23,10 +23,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        URL::forceScheme('https');
-        
-        // Use Bootstrap pagination instead of Tailwind
-        Paginator::useBootstrap();
+        // The production proxy terminates TLS; keep plain http for local development.
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
+        Paginator::defaultView('vendor.pagination.sawah');
+        Paginator::defaultSimpleView('vendor.pagination.sawah');
 
         // Register global Blade directive for image URLs
         Blade::directive('imageUrl', function ($expression) {

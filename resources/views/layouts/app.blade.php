@@ -3,184 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Sawah - Tourism Made Easy and Smart')</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .navbar-nav .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            transition: color 0.3s ease;
-        }
-        .navbar-nav .nav-link:hover {
-            color: white !important;
-        }
-        .navbar-nav .dropdown-menu {
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .navbar-nav .dropdown-item:hover {
-            background-color: #ff6b35;
-            color: white;
-        }
-        .hero-section {
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200');
-            background-size: cover;
-            background-position: center;
-            min-height: 80vh;
-            display: flex;
-            align-items: center;
-            color: white;
-        }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            transition: transform 0.3s ease;
-        }
-        .btn-orange {
-            background-color: #ff6b35;
-            border-color: #ff6b35;
-            color: white;
-        }
-        .btn-orange:hover {
-            background-color: #e55a2d;
-            border-color: #e55a2d;
-            color: white;
-        }
-        .country-card {
-            border: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        .attraction-img {
-            height: 200px;
-            object-fit: cover;
-        }
-        .map-container {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-        main {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        footer {
-            margin-top: 0 !important;
-        }
-        body {
-            margin-bottom: 0 !important;
-        }
-        .container-fluid, .container {
-            margin-bottom: 0 !important;
-        }
-        .row {
-            margin-bottom: 0 !important;
-        }
-        .col, .col-md-6, .col-md-12 {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-    </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Sawah: find where your budget takes you')</title>
+    <meta name="description" content="@yield('description', 'Compare 22 countries by daily budget in riyals, weather and trip type, with hotels and things to do in each.')">
+    @include('layouts.partials.head')
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #ff6b35 0%, #e55a2d 100%);">
-        <div class="container">
-            <a class="navbar-brand text-white" href="{{ route('home') }}">
-                <i class="fas fa-map-marked-alt me-2"></i>Sawah
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('home') }}">Home</a>
-                    </li>
-                    @auth
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('explore') }}">Explore</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('destination.suggest') }}">Suggest Destination</a>
-                        </li>
-                        @if(auth()->user()->isManager())
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Panel</a>
-                            </li>
-                        @endif
-                    @endauth
-                </ul>
-                
-                <ul class="navbar-nav">
-                    @auth
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle"></i> {{ Auth::user()->name }}
-                                @if(auth()->user()->isManager())
-                                    <span class="badge bg-warning text-dark ms-1">Manager</span>
-                                @endif
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
-                                <li><a class="dropdown-item" href="{{ route('profile.overview') }}">Profile Overview</a></li>
-                                <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Edit Profile</a></li>
-                                
-                                @if(auth()->user()->isManager())
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.countries.index') }}">Manage Countries</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.attractions.index') }}">Manage Attractions</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.hotels.index') }}">Manage Hotels</a></li>
-                                @endif
-                                
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item">Logout</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    @else
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}">Register</a>
-                        </li>
-                    @endauth
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <header class="site-header">
+        <div class="wrap">
+            <div class="bar">
+                <a class="logo" href="{{ route('home') }}" aria-label="Sawah home">sawah<span class="ar" lang="ar">سوّاح</span></a>
 
-    <!-- Main Content -->
+                <div class="bar-right">
+                    <span class="cur hide-sm" title="All prices are shown in Saudi riyals">SAR</span>
+                    @auth
+                        <div class="menu" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+                            <button type="button" class="menu-button" @click="open = !open" :aria-expanded="open">
+                                <span class="avatar">{{ Str::upper(Str::substr(Auth::user()->name, 0, 1)) }}</span>
+                                <span class="name">{{ Str::before(Auth::user()->name, ' ') }}</span>
+                                <x-icon name="chevron-down" size="sm" />
+                            </button>
+                            <div class="menu-panel" x-show="open" x-cloak x-transition.opacity.duration.100ms>
+                                <div class="who"><b>{{ Auth::user()->name }}</b><span>{{ Auth::user()->email }}</span></div>
+                                @if (Auth::user()->hasRole('manager'))
+                                    <a href="{{ route('admin.dashboard') }}"><x-icon name="dashboard" />Admin panel</a>
+                                @else
+                                    <a href="{{ route('dashboard') }}"><x-icon name="dashboard" />My trips</a>
+                                    <a href="{{ route('profile.edit') }}"><x-icon name="settings" />Account settings</a>
+                                @endif
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"><x-icon name="logout" />Sign out</button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('register') }}" class="hide-sm">Create account</a>
+                        <a href="{{ route('login') }}" class="btn-pill-outline">Sign in</a>
+                    @endauth
+                </div>
+            </div>
+
+            <nav class="tabs" aria-label="Sections">
+                <a class="tab {{ request()->routeIs('explore', 'country.show') ? 'is-active' : '' }}" href="{{ route('explore') }}"><x-icon name="globe" />Destinations</a>
+                <a class="tab {{ request()->routeIs('hotels.index') ? 'is-active' : '' }}" href="{{ route('hotels.index') }}"><x-icon name="bed" />Hotels</a>
+                <a class="tab {{ request()->routeIs('attractions.index') ? 'is-active' : '' }}" href="{{ route('attractions.index') }}"><x-icon name="ticket" />Things to do</a>
+                <a class="tab {{ request()->routeIs('destination.*') ? 'is-active' : '' }}" href="{{ route('destination.suggest') }}"><x-icon name="compass" />Trip planner</a>
+            </nav>
+        </div>
+    </header>
+
     <main>
         @yield('content')
     </main>
 
-    <!-- Footer -->
-    <footer class="navbar navbar-expand-lg navbar-dark py-2" style="background: linear-gradient(135deg, #ff6b35 0%, #e55a2d 100%);">
-        <div class="container">
-            <div class="navbar-brand text-white">
-                <i class="fas fa-map-marked-alt me-2"></i>Sawah
+    <footer class="site-footer">
+        <div class="wrap">
+            <div class="cols">
+                <div>
+                    <a class="logo" href="{{ route('home') }}">sawah<span class="ar" lang="ar">سوّاح</span></a>
+                    <p class="about">A small trip planner that matches your daily budget in riyals to countries, hotels and things to do.</p>
+                </div>
+                <div>
+                    <h4>Explore</h4>
+                    <a href="{{ route('explore') }}">Destinations</a>
+                    <a href="{{ route('hotels.index') }}">Hotels</a>
+                    <a href="{{ route('attractions.index') }}">Things to do</a>
+                    <a href="{{ route('destination.suggest') }}">Trip planner</a>
+                </div>
+                <div>
+                    <h4>Account</h4>
+                    @auth
+                        <a href="{{ route('dashboard') }}">My trips</a>
+                        <a href="{{ route('profile.edit') }}">Account settings</a>
+                    @else
+                        <a href="{{ route('login') }}">Sign in</a>
+                        <a href="{{ route('register') }}">Create account</a>
+                    @endauth
+                </div>
+                <div>
+                    <h4>About</h4>
+                    <a href="{{ route('credits') }}">Photo credits</a>
+                    <a href="https://open.er-api.com" rel="noopener" target="_blank">Exchange rate source</a>
+                </div>
             </div>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text text-white-50">&copy; 2024 Sawah. All rights reserved.</span>
+            <div class="base">
+                <span>© {{ date('Y') }} Sawah</span>
+                <span>Prices are estimates in SAR. Check with the hotel before you book.</span>
             </div>
         </div>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    @stack('scripts')
 </body>
 </html>
