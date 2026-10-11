@@ -3,20 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Country;
-use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CountryController extends Controller
 {
-    public function show($id)
+    public function show(string $slug)
     {
-        try {
-            $country = Country::with(['attractions', 'hotels'])->findOrFail($id);
-            return view('country.show', compact('country'));
-        } catch (ModelNotFoundException $e) {
-            abort(404, 'Country not found');
-        } catch (\Exception $e) {
-            abort(500, 'An error occurred while loading the country');
-        }
+        $country = Country::with([
+            'attractions' => fn ($q) => $q->orderBy('id'),
+            'hotels' => fn ($q) => $q->orderBy('price_per_night'),
+        ])->where('slug', $slug)->firstOrFail();
+
+        $similar = Country::where('id', '!=', $country->id)
+            ->orderByRaw('ABS(daily_budget_min - ?)', [$country->daily_budget_min])
+            ->take(4)
+            ->get();
+
+        return view('country.show', compact('country', 'similar'));
     }
 }

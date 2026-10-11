@@ -39,18 +39,12 @@ class ProfileController extends Controller
     /**
      * Display the user's profile overview.
      */
-    public function overview(Request $request): View
+    public function overview(Request $request): RedirectResponse
     {
-        $user = $request->user();
-        
-        // If user is admin, redirect to admin profile edit
-        if ($user->hasRole('manager')) {
-            return redirect()->route('admin.profile.edit');
-        }
-        
-        return view('profile.overview', [
-            'user' => $user,
-        ]);
+        // The overview now lives on the dashboard.
+        return $request->user()->hasRole('manager')
+            ? redirect()->route('admin.profile.edit')
+            : redirect()->route('dashboard');
     }
 
     /**

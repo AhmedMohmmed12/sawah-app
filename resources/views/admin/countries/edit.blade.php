@@ -1,100 +1,26 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Country - Sawah Admin')
+@section('title', 'Edit '.$country->name)
+@section('crumbs')<a href="{{ route('admin.dashboard') }}">Overview</a> / <a href="{{ route('admin.countries.index') }}">Countries</a> / <a href="{{ route('admin.countries.show', $country) }}">{{ $country->name }}</a> / Edit @endsection
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="card-title h3 mb-0">Edit Country: {{ $country->name }}</h1>
-                        <a href="{{ route('admin.countries.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Countries
-                        </a>
-                    </div>
-
-                    @if($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <ul class="mb-0">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <form action="{{ route('admin.countries.update', $country) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="name" class="form-label">Country Name</label>
-                                <input type="text" class="form-control" name="name" id="name" value="{{ old('name', $country->name) }}" required>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="code" class="form-label">Country Code</label>
-                                <input type="text" class="form-control" name="code" id="code" value="{{ old('code', $country->code) }}" required maxlength="3">
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="currency" class="form-label">Currency</label>
-                                <input type="text" class="form-control" name="currency" id="currency" value="{{ old('currency', $country->currency) }}" required>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="exchange_rate_to_sar" class="form-label">Exchange Rate to SAR</label>
-                                <input type="number" class="form-control" name="exchange_rate_to_sar" id="exchange_rate_to_sar" value="{{ old('exchange_rate_to_sar', $country->exchange_rate_to_sar) }}" required step="0.01" min="0">
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="climate" class="form-label">Climate</label>
-                                <input type="text" class="form-control" name="climate" id="climate" value="{{ old('climate', $country->climate) }}" required>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="daily_budget_min" class="form-label">Daily Budget Min (SAR)</label>
-                                <input type="number" class="form-control" name="daily_budget_min" id="daily_budget_min" value="{{ old('daily_budget_min', $country->daily_budget_min) }}" required step="0.01" min="0">
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="daily_budget_max" class="form-label">Daily Budget Max (SAR)</label>
-                                <input type="number" class="form-control" name="daily_budget_max" id="daily_budget_max" value="{{ old('daily_budget_max', $country->daily_budget_max) }}" required step="0.01" min="0">
-                            </div>
-
-                            <div class="col-12 mb-3">
-                                <label for="image" class="form-label">Country Image</label>
-                                @if($country->image)
-                                    <div class="mb-3">
-                                        <img src="{{ $country->image }}" alt="{{ $country->name }}" class="img-thumbnail" style="max-height: 150px;">
-                                        <p class="text-muted mt-1">Current image</p>
-                                    </div>
-                                @endif
-                                <input type="file" class="form-control" name="image" id="image" accept="image/*">
-                            </div>
-
-                            <div class="col-12 mb-3">
-                                <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" name="description" id="description" rows="4" required>{{ old('description', $country->description) }}</textarea>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-2">
-                            <a href="{{ route('admin.countries.index') }}" class="btn btn-secondary">
-                                Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Update Country
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<form method="POST" action="{{ route('admin.countries.update', $country) }}" enctype="multipart/form-data">
+    @csrf
+    @method('PUT')
+    <div class="admin-title">
+        <div><h1>Edit {{ $country->name }}</h1><p>Last changed {{ $country->updated_at->diffForHumans() }}.</p></div>
+        <div class="row">
+            <a class="btn btn-outline" href="{{ route('admin.countries.show', $country) }}">Cancel</a>
+            <button class="btn" type="submit">Save changes</button>
         </div>
     </div>
-</div>
-@endsection 
+    @include('admin.countries._form')
+</form>
+
+<section class="panel panel-danger section">
+    <div class="panel-head">
+        <div><h2>Delete country</h2><p>Also deletes its {{ $country->hotels()->count() }} hotels and {{ $country->attractions()->count() }} things to do.</p></div>
+        <x-delete-button :action="route('admin.countries.destroy', $country)" :name="$country->name" note="Its hotels and things to do will be deleted too. This can't be undone." label="Delete country" />
+    </div>
+</section>
+@endsection

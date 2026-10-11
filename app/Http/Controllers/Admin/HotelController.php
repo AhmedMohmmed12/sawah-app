@@ -3,113 +3,111 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Hotel;
 use App\Models\Country;
+use App\Models\Hotel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class HotelController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $hotels = Hotel::with('country')->paginate(10);
-        return view('admin.hotels.index', compact('hotels'));
+        $search = trim((string) $request->query('q'));
+        $countryId = $request->integer('country') ?: null;
+
+        $hotels = Hotel::with('country')
+            ->when($search, fn ($q) => $q->where(fn ($w) => $w
+                ->where('name', 'like', "%{$search}%")
+                ->orWhere('city', 'like', "%{$search}%")))
+            ->when($countryId, fn ($q) => $q->where('country_id', $countryId))
+            ->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.hotels.index', [
+            'hotels' => $hotels,
+            'search' => $search,
+            'countryId' => $countryId,
+            'countries' => Country::orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(Request $request)
     {
-        $countries = Country::all();
-        return view('admin.hotels.create', compact('countries'));
+        return view('admin.hotels.create', [
+            'hotel' => new Hotel(['country_id' => $request->integer('country') ?: null, 'stars' => 4]),
+            'countries' => Country::orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'country_id' => 'required|exists:countries,id',
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'stars' => 'required|integer|min:1|max:5',
-            'price_per_night' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validated = $this->validated($request);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('hotels', 'public');
         }
 
-        Hotel::create($validated);
+        $hotel = Hotel::create($validated);
 
         return redirect()->route('admin.hotels.index')
-            ->with('success', 'Hotel created successfully.');
+            ->with('success', "{$hotel->name} has been added.");
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Hotel $hotel)
     {
-        $hotel->load('country');
-        return view('admin.hotels.show', compact('hotel'));
+        return redirect()->route('admin.hotels.edit', $hotel);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Hotel $hotel)
     {
-        $countries = Country::all();
-        return view('admin.hotels.edit', compact('hotel', 'countries'));
+        return view('admin.hotels.edit', [
+            'hotel' => $hotel,
+            'countries' => Country::orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Hotel $hotel)
     {
-        $validated = $request->validate([
-            'country_id' => 'required|exists:countries,id',
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'stars' => 'required|integer|min:1|max:5',
-            'price_per_night' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validated = $this->validated($request);
 
         if ($request->hasFile('image')) {
-            // Delete old image
-            if ($hotel->image) {
-                Storage::disk('public')->delete($hotel->image);
-            }
+            $this->deleteUpload($hotel->image);
             $validated['image'] = $request->file('image')->store('hotels', 'public');
         }
 
         $hotel->update($validated);
 
         return redirect()->route('admin.hotels.index')
-            ->with('success', 'Hotel updated successfully.');
+            ->with('success', "{$hotel->name} has been updated.");
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Hotel $hotel)
     {
-        if ($hotel->image) {
-            Storage::disk('public')->delete($hotel->image);
-        }
-
+        $this->deleteUpload($hotel->image);
         $hotel->delete();
 
-        return redirect()->route('admin.hotels.index')
-            ->with('success', 'Hotel deleted successfully.');
+        return redirect()->route('admin.hotels.index')->with('success', "{$hotel->name} has been deleted.");
     }
-} 
+
+    private function validated(Request $request): array
+    {
+        return $request->validate([
+            'country_id' => ['required', 'exists:countries,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'stars' => ['required', 'integer', 'between:1,5'],
+            'price_per_night' => ['required', 'numeric', 'min:0'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:4096'],
+            'image_credit' => ['nullable', 'string', 'max:255'],
+        ]);
+    }
+
+    private function deleteUpload(?string $path): void
+    {
+        if ($path && ! str_starts_with($path, 'images/') && ! filter_var($path, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($path);
+        }
+    }
+}

@@ -1,94 +1,54 @@
 @extends('layouts.admin')
 
-@section('title', 'Manage Attractions - Sawah Admin')
+@section('title', 'Things to do')
+@section('crumbs')<a href="{{ route('admin.dashboard') }}">Overview</a> / Things to do @endsection
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="card-title h3 mb-0">Manage Attractions</h1>
-                        <a href="{{ route('admin.attractions.create') }}" class="btn btn-success">
-                            <i class="fas fa-plus me-2"></i>Add New Attraction
-                        </a>
-                    </div>
+<div class="admin-title">
+    <div><h1>Things to do</h1><p>{{ $attractions->total() }} {{ Str::plural('place', $attractions->total()) }}{{ $search || $countryId || $type ? ' match' : ' in total' }}.</p></div>
+    <a class="btn" href="{{ route('admin.attractions.create', ['country' => $countryId]) }}"><x-icon name="plus" size="sm" />Add place</a>
+</div>
 
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Country</th>
-                                    <th>Type</th>
-                                    <th>Description</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($attractions as $attraction)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                @if($attraction->image)
-                                                    <img class="rounded-circle me-3" src="{{ $attraction->image }}" alt="{{ $attraction->name }}" width="40" height="40" style="object-fit: cover;">
-                                                @endif
-                                                <div>
-                                                    <div class="fw-bold">{{ $attraction->name }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>{{ $attraction->country->name }}</td>
-                                        <td>
-                                            <span class="badge bg-info">{{ $attraction->type }}</span>
-                                        </td>
-                                        <td>{{ Str::limit($attraction->description, 100) }}</td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('admin.attractions.show', $attraction) }}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="{{ route('admin.attractions.edit', $attraction) }}" class="btn btn-sm btn-outline-warning">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="{{ route('admin.attractions.destroy', $attraction) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this attraction?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">
-                                            <i class="fas fa-inbox fa-2x mb-2"></i>
-                                            <p>No attractions found.</p>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    @if($attractions->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $attractions->links() }}
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
+<div class="panel">
+    <form class="toolbar" method="GET">
+        <input class="input" type="search" name="q" value="{{ $search }}" placeholder="Search name or city">
+        <select class="select" name="country">
+            <option value="">All countries</option>
+            @foreach ($countries as $c)
+                <option value="{{ $c->id }}" @selected($countryId === $c->id)>{{ $c->name }}</option>
+            @endforeach
+        </select>
+        <select class="select" name="type">
+            <option value="">All types</option>
+            @foreach (App\Models\Attraction::TYPES as $t)
+                <option value="{{ $t }}" @selected($type === $t)>{{ $t }}</option>
+            @endforeach
+        </select>
+        <button class="btn btn-sm btn-dark" type="submit">Filter</button>
+        @if ($search || $countryId || $type)<a class="btn btn-sm btn-ghost" href="{{ route('admin.attractions.index') }}">Clear</a>@endif
+    </form>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Name</th><th>Country</th><th>Type</th><th></th></tr></thead>
+            <tbody>
+                @forelse ($attractions as $attraction)
+                    <tr>
+                        <td><a class="name" href="{{ route('admin.attractions.edit', $attraction) }}"><img class="thumb" src="{{ $attraction->image_url }}" alt=""><span>{{ $attraction->name }}<small>{{ $attraction->city }}</small></span></a></td>
+                        <td>{{ $attraction->country->name }}</td>
+                        <td><span class="badge">{{ $attraction->type }}</span></td>
+                        <td>
+                            <div class="actions">
+                                <a class="btn btn-sm btn-outline" href="{{ route('admin.attractions.edit', $attraction) }}"><x-icon name="pencil" size="sm" />Edit</a>
+                                <x-delete-button :action="route('admin.attractions.destroy', $attraction)" :name="$attraction->name" label="" />
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="4"><div class="empty"><h3>Nothing found</h3><p>Try a different search or filter.</p></div></td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
-@endsection 
+{{ $attractions->links() }}
+@endsection

@@ -51,7 +51,7 @@ class ExchangeRates
      */
     public function refreshIfStale(): void
     {
-        if (! $this->isStale()) {
+        if (app()->runningUnitTests() || ! $this->isStale()) {
             return;
         }
 

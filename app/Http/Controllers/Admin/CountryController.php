@@ -6,113 +6,106 @@ use App\Http\Controllers\Controller;
 use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class CountryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $countries = Country::withCount(['attractions', 'hotels'])->paginate(10);
-        return view('admin.countries.index', compact('countries'));
+        $search = trim((string) $request->query('q'));
+
+        $countries = Country::withCount(['attractions', 'hotels'])
+            ->when($search, fn ($q) => $q->where(fn ($w) => $w
+                ->where('name', 'like', "%{$search}%")
+                ->orWhere('capital', 'like', "%{$search}%")
+                ->orWhere('currency', 'like', "%{$search}%")))
+            ->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.countries.index', compact('countries', 'search'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('admin.countries.create');
+        return view('admin.countries.create', ['country' => new Country(['climate' => 'Mild'])]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:3|unique:countries',
-            'currency' => 'required|string|max:50',
-            'exchange_rate_to_sar' => 'required|numeric|min:0',
-            'climate' => 'required|string|max:255',
-            'daily_budget_min' => 'required|numeric|min:0',
-            'daily_budget_max' => 'required|numeric|min:0|gte:daily_budget_min',
-            'description' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validated = $this->validated($request);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('countries', 'public');
         }
 
-        Country::create($validated);
+        $country = Country::create($validated);
 
-        return redirect()->route('admin.countries.index')
-            ->with('success', 'Country created successfully.');
+        return redirect()->route('admin.countries.show', $country)
+            ->with('success', "{$country->name} has been added.");
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Country $country)
     {
-        $country->load(['attractions', 'hotels']);
+        $country->load(['attractions', 'hotels' => fn ($q) => $q->orderBy('price_per_night')]);
+
         return view('admin.countries.show', compact('country'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Country $country)
     {
         return view('admin.countries.edit', compact('country'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Country $country)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:3|unique:countries,code,' . $country->id,
-            'currency' => 'required|string|max:50',
-            'exchange_rate_to_sar' => 'required|numeric|min:0',
-            'climate' => 'required|string|max:255',
-            'daily_budget_min' => 'required|numeric|min:0',
-            'daily_budget_max' => 'required|numeric|min:0|gte:daily_budget_min',
-            'description' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validated = $this->validated($request, $country);
 
         if ($request->hasFile('image')) {
-            // Delete old image
-            if ($country->image) {
-                Storage::disk('public')->delete($country->image);
-            }
+            $this->deleteUpload($country->image);
             $validated['image'] = $request->file('image')->store('countries', 'public');
         }
 
         $country->update($validated);
 
-        return redirect()->route('admin.countries.index')
-            ->with('success', 'Country updated successfully.');
+        return redirect()->route('admin.countries.show', $country)
+            ->with('success', "{$country->name} has been updated.");
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Country $country)
     {
-        if ($country->image) {
-            Storage::disk('public')->delete($country->image);
-        }
-
+        $this->deleteUpload($country->image);
         $country->delete();
 
         return redirect()->route('admin.countries.index')
-            ->with('success', 'Country deleted successfully.');
+            ->with('success', "{$country->name} and its hotels and attractions have been deleted.");
     }
-} 
+
+    private function validated(Request $request, ?Country $country = null): array
+    {
+        return $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'code' => ['required', 'string', 'size:2', Rule::unique('countries', 'code')->ignore($country)],
+            'capital' => ['nullable', 'string', 'max:255'],
+            'region' => ['nullable', 'string', 'max:50'],
+            'currency' => ['required', 'string', 'size:3'],
+            'exchange_rate_to_sar' => ['required', 'numeric', 'gt:0'],
+            'climate' => ['required', 'in:Warm,Mild,Cold'],
+            'best_months' => ['nullable', 'string', 'max:255'],
+            'daily_budget_min' => ['required', 'numeric', 'min:0'],
+            'daily_budget_max' => ['required', 'numeric', 'min:0', 'gte:daily_budget_min'],
+            'description' => ['required', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:4096'],
+            'image_caption' => ['nullable', 'string', 'max:255'],
+            'image_credit' => ['nullable', 'string', 'max:255'],
+        ]);
+    }
+
+    /** Remove an uploaded file; photos shipped in public/images are left alone. */
+    private function deleteUpload(?string $path): void
+    {
+        if ($path && ! str_starts_with($path, 'images/') && ! filter_var($path, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($path);
+        }
+    }
+}

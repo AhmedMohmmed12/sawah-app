@@ -1,96 +1,49 @@
 @extends('layouts.admin')
 
-@section('title', 'Manage Hotels - Sawah Admin')
+@section('title', 'Hotels')
+@section('crumbs')<a href="{{ route('admin.dashboard') }}">Overview</a> / Hotels @endsection
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="card-title h3 mb-0">Manage Hotels</h1>
-                        <a href="{{ route('admin.hotels.create') }}" class="btn btn-warning">
-                            <i class="fas fa-plus me-2"></i>Add New Hotel
-                        </a>
-                    </div>
+<div class="admin-title">
+    <div><h1>Hotels</h1><p>{{ $hotels->total() }} {{ Str::plural('hotel', $hotels->total()) }}{{ $search || $countryId ? ' match' : ' in total' }}.</p></div>
+    <a class="btn" href="{{ route('admin.hotels.create', ['country' => $countryId]) }}"><x-icon name="plus" size="sm" />Add hotel</a>
+</div>
 
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Country</th>
-                                    <th>Stars</th>
-                                    <th>Price/Night</th>
-                                    <th>Description</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($hotels as $hotel)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                @if($hotel->image)
-                                                    <img class="rounded-circle me-3" src="{{ $hotel->image }}" alt="{{ $hotel->name }}" width="40" height="40" style="object-fit: cover;">
-                                                @endif
-                                                <div>
-                                                    <div class="fw-bold">{{ $hotel->name }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>{{ $hotel->country->name }}</td>
-                                        <td>
-                                            <span class="badge bg-warning text-dark">{{ $hotel->stars }}★</span>
-                                        </td>
-                                        <td>SAR {{ $hotel->price_per_night }}</td>
-                                        <td>{{ Str::limit($hotel->description, 100) }}</td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('admin.hotels.show', $hotel) }}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="{{ route('admin.hotels.edit', $hotel) }}" class="btn btn-sm btn-outline-warning">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="{{ route('admin.hotels.destroy', $hotel) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this hotel?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">
-                                            <i class="fas fa-inbox fa-2x mb-2"></i>
-                                            <p>No hotels found.</p>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    @if($hotels->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $hotels->links() }}
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
+<div class="panel">
+    <form class="toolbar" method="GET">
+        <input class="input" type="search" name="q" value="{{ $search }}" placeholder="Search name or city">
+        <select class="select" name="country">
+            <option value="">All countries</option>
+            @foreach ($countries as $c)
+                <option value="{{ $c->id }}" @selected($countryId === $c->id)>{{ $c->name }}</option>
+            @endforeach
+        </select>
+        <button class="btn btn-sm btn-dark" type="submit">Filter</button>
+        @if ($search || $countryId)<a class="btn btn-sm btn-ghost" href="{{ route('admin.hotels.index') }}">Clear</a>@endif
+    </form>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Hotel</th><th>Country</th><th>Stars</th><th class="num">From / night</th><th></th></tr></thead>
+            <tbody>
+                @forelse ($hotels as $hotel)
+                    <tr>
+                        <td><a class="name" href="{{ route('admin.hotels.edit', $hotel) }}"><img class="thumb" src="{{ $hotel->image_url }}" alt=""><span>{{ $hotel->name }}<small>{{ $hotel->city }}</small></span></a></td>
+                        <td>{{ $hotel->country->name }}</td>
+                        <td><x-stars :count="$hotel->stars" /></td>
+                        <td class="num">SAR {{ number_format($hotel->price_per_night) }}</td>
+                        <td>
+                            <div class="actions">
+                                <a class="btn btn-sm btn-outline" href="{{ route('admin.hotels.edit', $hotel) }}"><x-icon name="pencil" size="sm" />Edit</a>
+                                <x-delete-button :action="route('admin.hotels.destroy', $hotel)" :name="$hotel->name" label="" />
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="5"><div class="empty"><h3>No hotels found</h3><p>Try a different search or country.</p></div></td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
-@endsection 
+{{ $hotels->links() }}
+@endsection

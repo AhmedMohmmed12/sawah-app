@@ -1,59 +1,33 @@
 <x-guest-layout>
-    <div class="text-center mb-4">
-        <h2 class="h3 mb-3 fw-normal">Create Account</h2>
-        <p class="text-muted">Join Sawah and start your journey</p>
-    </div>
+    <x-slot:title>Create account</x-slot:title>
+
+    <h1>Create your account</h1>
+    <p class="sub">Free. You'll be able to use the trip planner and save how you like to travel.</p>
 
     <form method="POST" action="{{ route('register') }}">
         @csrf
-
-        <!-- Name -->
-        <div class="mb-3">
-            <label for="name" class="form-label">{{ __('Name') }}</label>
-            <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" 
-                   name="name" value="{{ old('name') }}" required autofocus autocomplete="name">
-            @error('name')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+        <div class="field">
+            <label class="label" for="name">Name</label>
+            <input class="input @error('name') is-invalid @enderror" id="name" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name">
+            @error('name')<p class="error">{{ $message }}</p>@enderror
         </div>
-
-        <!-- Email Address -->
-        <div class="mb-3">
-            <label for="email" class="form-label">{{ __('Email') }}</label>
-            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
-                   name="email" value="{{ old('email') }}" required autocomplete="username">
-            @error('email')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+        <div class="field">
+            <label class="label" for="email">Email</label>
+            <input class="input @error('email') is-invalid @enderror" id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="username">
+            @error('email')<p class="error">{{ $message }}</p>@enderror
         </div>
-
-        <!-- Password -->
-        <div class="mb-3">
-            <label for="password" class="form-label">{{ __('Password') }}</label>
-            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
-                   name="password" required autocomplete="new-password">
-            @error('password')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+        <div class="field">
+            <label class="label" for="password">Password</label>
+            <input class="input @error('password') is-invalid @enderror" id="password" type="password" name="password" required autocomplete="new-password">
+            <p class="help">At least 8 characters.</p>
+            @error('password')<p class="error">{{ $message }}</p>@enderror
         </div>
-
-        <!-- Confirm Password -->
-        <div class="mb-3">
-            <label for="password_confirmation" class="form-label">{{ __('Confirm Password') }}</label>
-            <input id="password_confirmation" type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
-                   name="password_confirmation" required autocomplete="new-password">
-            @error('password_confirmation')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+        <div class="field">
+            <label class="label" for="password_confirmation">Repeat password</label>
+            <input class="input" id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password">
         </div>
-
-        <button type="submit" class="btn btn-primary w-100 mb-3">
-            <i class="fas fa-user-plus me-2"></i>{{ __('Register') }}
-        </button>
-
-        <div class="text-center">
-            <span class="text-muted">Already have an account?</span>
-            <a href="{{ route('login') }}" class="btn-link ms-1">Sign in here</a>
-        </div>
+        <button class="btn btn-block btn-lg" type="submit">Create account</button>
     </form>
+
+    <p class="alt">Already have an account? <a class="link" href="{{ route('login') }}">Sign in</a></p>
 </x-guest-layout>

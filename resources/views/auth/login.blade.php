@@ -1,62 +1,33 @@
 <x-guest-layout>
-    <div class="text-center mb-4">
-        <h2 class="h3 mb-3 fw-normal">Welcome Back</h2>
-        <p class="text-muted">Sign in to your account</p>
-    </div>
+    <x-slot:title>Sign in</x-slot:title>
 
-    <!-- Session Status -->
-    @if (session('status'))
-        <div class="alert alert-success mb-3" role="alert">
-            {{ session('status') }}
-        </div>
-    @endif
+    <h1>Welcome back</h1>
+    <p class="sub">Sign in to use the trip planner and see your saved preferences.</p>
+
+    <x-alerts />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
-
-        <!-- Email Address -->
-        <div class="mb-3">
-            <label for="email" class="form-label">{{ __('Email') }}</label>
-            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
-                   name="email" value="{{ old('email') }}" required autofocus autocomplete="username">
-            @error('email')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+        <div class="field">
+            <label class="label" for="email">Email</label>
+            <input class="input @error('email') is-invalid @enderror" id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username">
+            @error('email')<p class="error">{{ $message }}</p>@enderror
         </div>
-
-        <!-- Password -->
-        <div class="mb-3">
-            <label for="password" class="form-label">{{ __('Password') }}</label>
-            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
-                   name="password" required autocomplete="current-password">
-            @error('password')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+        <div class="field">
+            <div class="spread">
+                <label class="label" for="password">Password</label>
+                @if (Route::has('password.request'))
+                    <a class="link small" href="{{ route('password.request') }}">Forgot it?</a>
+                @endif
+            </div>
+            <input class="input @error('password') is-invalid @enderror" id="password" type="password" name="password" required autocomplete="current-password">
+            @error('password')<p class="error">{{ $message }}</p>@enderror
         </div>
-
-        <!-- Remember Me -->
-        <div class="mb-3 form-check">
-            <input id="remember_me" type="checkbox" class="form-check-input" name="remember">
-            <label class="form-check-label" for="remember_me">
-                {{ __('Remember me') }}
-            </label>
+        <div class="field">
+            <label class="check"><input type="checkbox" name="remember" id="remember_me">Keep me signed in</label>
         </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            @if (Route::has('password.request'))
-                <a class="btn-link" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100 mb-3">
-            <i class="fas fa-sign-in-alt me-2"></i>{{ __('Log in') }}
-        </button>
-
-        <div class="text-center">
-            <span class="text-muted">Don't have an account?</span>
-            <a href="{{ route('register') }}" class="btn-link ms-1">Register here</a>
-        </div>
+        <button class="btn btn-block btn-lg" type="submit">Sign in</button>
     </form>
+
+    <p class="alt">New to Sawah? <a class="link" href="{{ route('register') }}">Create a free account</a></p>
 </x-guest-layout>

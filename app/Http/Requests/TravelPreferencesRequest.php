@@ -23,7 +23,7 @@ class TravelPreferencesRequest extends FormRequest
     {
         return [
             'preferred_climate' => ['nullable', 'string', 'in:warm,mild,cold,no_preference'],
-            'budget_range' => ['nullable', 'string', 'in:50-100,100-200,200-300,300-500,500+'],
+            'budget_range' => ['nullable', 'string', 'in:under-300,300-600,600-1000,1000-1500,1500-plus,50-100,100-200,200-300,300-500,500+'],
             'interests' => ['nullable', 'array'],
             'interests.*' => ['string', 'in:adventure,culture,relaxation,food,nature,shopping'],
         ];

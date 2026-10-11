@@ -1,100 +1,53 @@
 @extends('layouts.admin')
 
-@section('title', 'Manage Countries - Sawah Admin')
+@section('title', 'Countries')
+@section('crumbs')<a href="{{ route('admin.dashboard') }}">Overview</a> / Countries @endsection
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="card-title h3 mb-0">Manage Countries</h1>
-                        <a href="{{ route('admin.countries.create') }}" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Add New Country
-                        </a>
-                    </div>
+<div class="admin-title">
+    <div><h1>Countries</h1><p>{{ $countries->total() }} {{ Str::plural('country', $countries->total()) }} on the site.</p></div>
+    <a class="btn" href="{{ route('admin.countries.create') }}"><x-icon name="plus" size="sm" />Add country</a>
+</div>
 
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Code</th>
-                                    <th>Currency</th>
-                                    <th>Climate</th>
-                                    <th>Attractions</th>
-                                    <th>Hotels</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($countries as $country)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                @if($country->image)
-                                                    <img class="rounded-circle me-3" src="{{ $country->image_url }}" alt="{{ $country->name }}" width="40" height="40" style="object-fit: cover;">
-                                                @endif
-                                                <div>
-                                                    <div class="fw-bold">{{ $country->name }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>{{ $country->code }}</td>
-                                        <td>{{ $country->currency }}</td>
-                                        <td>{{ $country->climate }}</td>
-                                        <td>
-                                            <span class="badge bg-success">{{ $country->attractions_count }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info">{{ $country->hotels_count }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('admin.countries.show', $country) }}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="{{ route('admin.countries.edit', $country) }}" class="btn btn-sm btn-outline-warning">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="{{ route('admin.countries.destroy', $country) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this country?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center text-muted">
-                                            <i class="fas fa-inbox fa-2x mb-2"></i>
-                                            <p>No countries found.</p>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    @if($countries->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $countries->links() }}
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
+<div class="panel">
+    <form class="toolbar" method="GET">
+        <input class="input" type="search" name="q" value="{{ $search }}" placeholder="Search name, capital or currency">
+        <button class="btn btn-sm btn-dark" type="submit">Search</button>
+        @if ($search)<a class="btn btn-sm btn-ghost" href="{{ route('admin.countries.index') }}">Clear</a>@endif
+    </form>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr><th>Country</th><th>Region</th><th>Climate</th><th class="num">SAR / day</th><th class="num">1 unit in SAR</th><th class="num">Hotels</th><th class="num">To do</th><th></th></tr>
+            </thead>
+            <tbody>
+                @forelse ($countries as $country)
+                    <tr>
+                        <td>
+                            <a class="name" href="{{ route('admin.countries.show', $country) }}">
+                                <img class="thumb" src="{{ $country->image_url }}" alt="">
+                                <span>{{ $country->name }}<small>{{ $country->capital }} · {{ $country->code }}</small></span>
+                            </a>
+                        </td>
+                        <td>{{ $country->region ?? '—' }}</td>
+                        <td>{{ $country->climate }}</td>
+                        <td class="num">{{ number_format($country->daily_budget_min) }}–{{ number_format($country->daily_budget_max) }}</td>
+                        <td class="num">{{ $country->currency }} {{ rtrim(rtrim(number_format($country->exchange_rate_to_sar, 5), '0'), '.') }}</td>
+                        <td class="num">{{ $country->hotels_count }}</td>
+                        <td class="num">{{ $country->attractions_count }}</td>
+                        <td>
+                            <div class="actions">
+                                <a class="btn btn-sm btn-ghost" href="{{ route('country.show', $country->slug) }}" target="_blank" title="View on site"><x-icon name="eye" size="sm" /></a>
+                                <a class="btn btn-sm btn-outline" href="{{ route('admin.countries.edit', $country) }}"><x-icon name="pencil" size="sm" />Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="8"><div class="empty"><h3>No countries found</h3><p>Try a different search.</p></div></td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
-@endsection 
+{{ $countries->links() }}
+@endsection

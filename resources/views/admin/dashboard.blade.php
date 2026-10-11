@@ -1,162 +1,100 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin Dashboard - Sawah')
+@section('title', 'Overview')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="admin-title">
+    <div>
+        <h1>Overview</h1>
+        <p>Exchange rates {{ $ratesUpdated ? 'updated '.$ratesUpdated->diffForHumans() : 'not fetched yet; run php artisan rates:update' }}.</p>
+    </div>
     <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h1 class="card-title h3 mb-4">Admin Dashboard</h1>
-                    
-                    <!-- Statistics Cards -->
-                    <div class="row mb-4">
-                        <div class="col-md-2 col-sm-6 mb-3">
-                            <div class="card bg-primary text-white">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Countries</h5>
-                                    <h2 class="display-6">{{ $stats['total_countries'] }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-2 col-sm-6 mb-3">
-                            <div class="card bg-success text-white">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Attractions</h5>
-                                    <h2 class="display-6">{{ $stats['total_attractions'] }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-2 col-sm-6 mb-3">
-                            <div class="card bg-warning text-dark">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Hotels</h5>
-                                    <h2 class="display-6">{{ $stats['total_hotels'] }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-2 col-sm-6 mb-3">
-                            <div class="card bg-info text-white">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Users</h5>
-                                    <h2 class="display-6">{{ $stats['total_users'] }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-2 col-sm-6 mb-3">
-                            <div class="card bg-danger text-white">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Managers</h5>
-                                    <h2 class="display-6">{{ $stats['total_managers'] }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="mb-4">
-                        <h4 class="mb-3">Quick Actions</h4>
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="{{ route('admin.countries.create') }}" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>Add Country
-                            </a>
-                            <a href="{{ route('admin.attractions.create') }}" class="btn btn-success">
-                                <i class="fas fa-plus me-2"></i>Add Attraction
-                            </a>
-                            <a href="{{ route('admin.hotels.create') }}" class="btn btn-warning">
-                                <i class="fas fa-plus me-2"></i>Add Hotel
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Recent Data -->
-                    <div class="row">
-                        <!-- Recent Countries -->
-                        <div class="col-lg-4 mb-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">Recent Countries</h5>
-                                </div>
-                                <div class="card-body">
-                                    @if($recentCountries->count() > 0)
-                                        <div class="list-group list-group-flush">
-                                            @foreach($recentCountries as $country)
-                                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span>{{ $country->name }}</span>
-                                                    <a href="{{ route('admin.countries.edit', $country) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <p class="text-muted">No countries found.</p>
-                                    @endif
-                                    <a href="{{ route('admin.countries.index') }}" class="btn btn-link p-0 mt-2">View All Countries</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Attractions -->
-                        <div class="col-lg-4 mb-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">Recent Attractions</h5>
-                                </div>
-                                <div class="card-body">
-                                    @if($recentAttractions->count() > 0)
-                                        <div class="list-group list-group-flush">
-                                            @foreach($recentAttractions as $attraction)
-                                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <div class="fw-bold">{{ $attraction->name }}</div>
-                                                        <small class="text-muted">{{ $attraction->country->name }}</small>
-                                                    </div>
-                                                    <a href="{{ route('admin.attractions.edit', $attraction) }}" class="btn btn-sm btn-outline-success">Edit</a>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <p class="text-muted">No attractions found.</p>
-                                    @endif
-                                    <a href="{{ route('admin.attractions.index') }}" class="btn btn-link p-0 mt-2">View All Attractions</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Hotels -->
-                        <div class="col-lg-4 mb-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">Recent Hotels</h5>
-                                </div>
-                                <div class="card-body">
-                                    @if($recentHotels->count() > 0)
-                                        <div class="list-group list-group-flush">
-                                            @foreach($recentHotels as $hotel)
-                                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <div class="fw-bold">{{ $hotel->name }}</div>
-                                                        <small class="text-muted">{{ $hotel->country->name }} - {{ $hotel->stars }}★</small>
-                                                    </div>
-                                                    <a href="{{ route('admin.hotels.edit', $hotel) }}" class="btn btn-sm btn-outline-warning">Edit</a>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <p class="text-muted">No hotels found.</p>
-                                    @endif
-                                    <a href="{{ route('admin.hotels.index') }}" class="btn btn-link p-0 mt-2">View All Hotels</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <a class="btn btn-outline" href="{{ route('home') }}" target="_blank">View site <x-icon name="external" size="sm" /></a>
+        <a class="btn" href="{{ route('admin.countries.create') }}"><x-icon name="plus" size="sm" />Add country</a>
     </div>
 </div>
-@endsection 
+
+<div class="stats">
+    <div><small>Countries</small><b>{{ $stats['countries'] }}</b></div>
+    <div><small>Hotels</small><b>{{ $stats['hotels'] }}</b></div>
+    <div><small>Things to do</small><b>{{ $stats['attractions'] }}</b></div>
+    <div><small>Registered travellers</small><b>{{ $stats['users'] }}</b></div>
+</div>
+
+<div class="admin-cols section">
+    <div>
+        <section class="panel">
+            <div class="panel-head">
+                <div><h2>Needs attention</h2><p>Countries missing a photo, capital, hotels or things to do.</p></div>
+            </div>
+            @if ($needsWork->isEmpty())
+                <div class="panel-body muted">Everything is filled in.</div>
+            @else
+                <ul class="mini-list">
+                    @foreach ($needsWork as $country)
+                        <li>
+                            <img src="{{ $country->image_url }}" alt="">
+                            <div class="t">
+                                <b>{{ $country->name }}</b>
+                                <span>
+                                    {{ collect([
+                                        ! $country->image ? 'no photo' : null,
+                                        ! $country->capital ? 'no capital' : null,
+                                        $country->hotels_count === 0 ? 'no hotels' : null,
+                                        $country->attractions_count < 2 ? $country->attractions_count.' things to do' : null,
+                                    ])->filter()->join(', ') }}
+                                </span>
+                            </div>
+                            <a class="btn btn-sm btn-outline" href="{{ route('admin.countries.show', $country) }}">Open</a>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+
+        <section class="panel">
+            <div class="panel-head"><div><h2>Recently edited hotels</h2></div><a class="link small" href="{{ route('admin.hotels.index') }}">All hotels</a></div>
+            <ul class="mini-list">
+                @foreach ($recentHotels as $hotel)
+                    <li>
+                        <img src="{{ $hotel->image_url }}" alt="">
+                        <div class="t"><b>{{ $hotel->name }}</b><span>{{ $hotel->city }}, {{ $hotel->country->name }} · {{ $hotel->updated_at->diffForHumans() }}</span></div>
+                        <a class="btn btn-sm btn-ghost" href="{{ route('admin.hotels.edit', $hotel) }}"><x-icon name="pencil" size="sm" />Edit</a>
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    </div>
+
+    <div>
+        <section class="panel">
+            <div class="panel-head"><div><h2>Recently edited countries</h2></div></div>
+            <ul class="mini-list">
+                @foreach ($recentCountries as $country)
+                    <li>
+                        <img src="{{ $country->image_url }}" alt="">
+                        <div class="t"><b>{{ $country->name }}</b><span>{{ $country->updated_at->diffForHumans() }}</span></div>
+                        <a class="btn btn-sm btn-ghost" href="{{ route('admin.countries.edit', $country) }}"><x-icon name="pencil" size="sm" /></a>
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head"><div><h2>New travellers</h2></div></div>
+            @if ($newUsers->isEmpty())
+                <div class="panel-body muted">No sign-ups yet.</div>
+            @else
+                <ul class="mini-list">
+                    @foreach ($newUsers as $user)
+                        <li>
+                            <span class="avatar">{{ Str::upper(Str::substr($user->name, 0, 1)) }}</span>
+                            <div class="t"><b>{{ $user->name }}</b><span>Joined {{ $user->created_at->diffForHumans() }} · {{ $user->search_count }} {{ Str::plural('search', $user->search_count) }}</span></div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+    </div>
+</div>
+@endsection
