@@ -1,253 +1,92 @@
-# Sawah - Tourism Made Easy and Smart
+# Sawah
 
-A modern Laravel-based tourism application that provides personalized destination recommendations, budget planning, and travel insights with comprehensive admin management capabilities.
+Sawah (سوّاح, "travellers") is a trip planner for people paying in Saudi riyals. You give it a daily budget, the weather you want and the kind of trip, and it shows which countries fit, with hotels and things to do in each.
 
-## Features
+Live site: https://sawah.habani.site
 
-### 🎯 **User Features**
-- 🗺️ **Smart Destination Recommendations** - Get personalized suggestions based on preferences
-- 💰 **Budget Planning** - Plan trips with accurate budget estimates and currency rates
-- 🏨 **Hotel & Accommodation Discovery** - Find the best places to stay
-- 🎯 **Attraction Explorer** - Discover popular attractions and activities
-- 👤 **User Profiles** - Save travel preferences and track search history
-- 🌍 **Country Explorer** - Browse destinations with detailed information
-- 📱 **Responsive Design** - Works perfectly on desktop and mobile devices
+It covers 22 countries, 66 hotels and 88 attractions. Budgets are mid-range estimates per person per day in SAR (hotel, food, local transport and entry fees, without flights). Hotel prices are typical starting rates and change with the season. Exchange rates update once a day.
 
-### 🔧 **Admin Features**
-- 👨‍💼 **Admin Dashboard** - Comprehensive overview of platform statistics
-- 🏳️ **Country Management** - Add, edit, and manage countries with images
-- 🏛️ **Attraction Management** - Manage tourist attractions and points of interest
-- 🏨 **Hotel Management** - Manage hotel listings with pricing and ratings
-- 👥 **User Management** - Monitor user activity and platform usage
-- 🔐 **Role-Based Access Control** - Secure admin-only functionality
+## What's in it
 
-## Prerequisites
+- **Destinations, Hotels, Things to do:** public pages anyone can browse and filter.
+- **Country pages:** daily budget, today's exchange rate, best months, a numbered list of things to do, hotels, and countries with a similar budget.
+- **Trip planner** (signed-in travellers): matches countries whose budget range overlaps yours and whose climate fits, then ranks them by how many things to do suit the trip type. Each result says why it matched.
+- **My trips:** saved preferences (budget, weather, interests) pre-fill the planner and suggest countries.
+- **Admin panel** (`/admin`, manager role): manage countries, hotels and things to do, with search, filters and photo uploads.
 
-Before you begin, ensure you have the following installed:
+## Stack
 
-- **PHP** >= 8.1
-- **Composer** >= 2.0
-- **Node.js** >= 16.0 (for frontend assets)
-- **MySQL** >= 8.0
-- **Web Server** (Apache/Nginx) or **Laravel Sail** (Docker)
+- Laravel 12, PHP 8.2+, MySQL
+- Blade views with a small hand-written CSS design system in `resources/css` (no CSS framework)
+- Alpine.js for menus, card rows and confirm dialogs
+- Vite for building assets
 
-## Installation
-
-### 1. Clone the Repository
+## Setup
 
 ```bash
-git clone https://github.com/yourusername/sawah-app.git
+git clone https://github.com/AhmedMohmmed12/sawah-app.git
 cd sawah-app
-```
-
-### 2. Install PHP Dependencies
-
-```bash
 composer install
-```
-
-### 3. Install Node.js Dependencies
-
-```bash
 npm install
-```
-
-### 4. Environment Setup
-
-Copy the environment file and configure your database:
-
-```bash
 cp .env.example .env
-```
-
-Edit `.env` file with your database credentials:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=sawah_app
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
-```
-
-### 5. Generate Application Key
-
-```bash
 php artisan key:generate
 ```
 
-### 6. Run Database Migrations
+Set your database details in `.env`, then:
 
 ```bash
 php artisan migrate
-```
-
-### 7. Seed the Database
-
-```bash
 php artisan db:seed
-```
-
-This will populate the database with:
-- Sample countries with travel information
-- Popular destinations and attractions
-- Hotel listings with pricing
-- Default admin user account
-
-### 8. Build Frontend Assets
-
-```bash
+php artisan rates:update
 npm run build
-```
-
-### 9. Set Up Storage Link
-
-```bash
 php artisan storage:link
-```
-
-This creates a symbolic link for file uploads and image storage.
-
-### 10. Create Storage Directories
-
-```bash
-mkdir -p storage/app/public/countries
-mkdir -p storage/app/public/attractions
-mkdir -p storage/app/public/hotels
-```
-
-## Running the Application
-
-### Development Server
-
-```bash
 php artisan serve
 ```
 
-The application will be available at `http://localhost:8000`
+`db:seed` loads the countries, hotels and attractions and creates a manager account (`manager@sawah.com`, password `password`). **Change that password before deploying**, or create your own manager and delete the seeded one.
 
+The seeders can be run again safely. They update rows by name instead of duplicating them, and they leave anything added through the admin panel alone.
 
-## File Structure
+For development with hot reload, run `npm run dev` alongside `php artisan serve`.
 
-```
-sawah-app/
-├── app/
-│   ├── Http/Controllers/
-│   │   ├── Admin/           # Admin controllers
-│   │   ├── Auth/            # Authentication controllers
-│   │   └── ...              # Other controllers
-│   ├── Models/              # Eloquent models
-│   ├── Helpers/             # Helper classes (ImageHelper)
-│   └── Providers/           # Service providers
-├── resources/views/
-│   ├── admin/               # Admin views
-│   ├── auth/                # Authentication views
-│   ├── profile/             # User profile views
-│   └── ...                  # Other views
-├── routes/
-│   ├── web.php              # Web routes
-│   └── auth.php             # Authentication routes
-└── storage/
-    └── app/public/          # File uploads
-        ├── countries/       # Country images
-        ├── attractions/     # Attraction images
-        └── hotels/          # Hotel images
+## Data and photos
+
+The seed data lives in `database/seeders/data/destinations.php`. Each country lists its currency, capital, region, climate, best months, daily budget, four things to do and three hotels.
+
+Photos are freely licensed images from Wikimedia Commons, stored in `public/images`. Their authors and licences are recorded in `database/seeders/data/image-credits.php`, shown under each photo, and listed on `/photo-credits`.
+
+To add or change a photo, edit the entry's `photo` value (a Wikipedia article title, a search phrase, or an exact `File:...` name on Commons) and run:
+
+```bash
+php artisan sawah:fetch-images
+php artisan db:seed
 ```
 
-## Key Features Implementation
+The command only downloads entries whose `photo` changed. Pass `--only=hotels/the-savoy` to fetch a single entry, or `--force` to fetch everything again. Check new photos by eye: search results are sometimes the wrong place.
 
-### Role-Based Access Control
-- **User Role**: Regular users with travel features
-- **Manager Role**: Administrators with full management capabilities
-- **Middleware Protection**: Secure routes based on user roles
+## Exchange rates
 
-### Image Management
-- **External URLs**: Support for Unsplash and other external image sources
-- **Local Storage**: File upload capability for local images
-- **Image Helper**: Smart handling of both external and local images
-- **Storage Links**: Proper file serving configuration
+`exchange_rate_to_sar` stores how many riyals one unit of the local currency is worth. `php artisan rates:update` fetches current rates from [open.er-api.com](https://open.er-api.com) (free, no API key) and is scheduled daily in `routes/console.php`.
 
-### Admin Interface
-- **Dedicated Layout**: Admin-specific design and navigation
-- **CRUD Operations**: Full create, read, update, delete functionality
-- **Dashboard Analytics**: Platform statistics and monitoring
-- **User Management**: Admin profile and account management
+If your host has no cron job for `php artisan schedule:run`, the home and destinations pages also refresh the rates when they are more than a day old. A failed refresh is logged and the stored rates are kept.
 
-## Customization
+## Deploying an update
 
-### Adding New Countries
+After pulling a new version on the server:
 
-1. Access the admin panel at `/admin/countries`
-2. Click "Add New Country"
-3. Fill in country details and upload an image
-4. Save the country
-
-### Modifying the Design
-
-The application uses:
-- **Bootstrap 5** for responsive layout
-- **Font Awesome** for icons
-- Custom CSS for styling
-
-### Environment Variables
-
-Key environment variables you can customize:
-
-```env
-APP_NAME="Sawah"
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=sawah_app
-DB_USERNAME=root
-DB_PASSWORD=
-
-MAIL_MAILER=smtp
-MAIL_HOST=mailpit
-MAIL_PORT=1025
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS="hello@example.com"
-MAIL_FROM_NAME="${APP_NAME}"
+```bash
+php artisan migrate --force
+php artisan db:seed --force
+npm ci && npm run build
+php artisan optimize
 ```
 
-## Server Requirements
+The Docker image builds the assets but does not run migrations or seeders, so run those two commands in the container after deploying.
 
-- PHP >= 8.1
-- BCMath PHP Extension
-- Ctype PHP Extension
-- cURL PHP Extension
-- DOM PHP Extension
-- Fileinfo PHP Extension
-- JSON PHP Extension
-- Mbstring PHP Extension
-- OpenSSL PHP Extension
-- PCRE PHP Extension
-- PDO PHP Extension
-- Tokenizer PHP Extension
-- XML PHP Extension
+## Tests
 
-## Troubleshooting
+```bash
+php artisan test
+```
 
-### Common Issues
-
-1. **Images not displaying**:
-   - Ensure storage link is created: `php artisan storage:link`
-   - Check file permissions on storage directory
-   - Verify image URLs in database
-
-2. **Admin access denied**:
-   - Check user role in database
-   - Ensure middleware is properly configured
-   - Verify route protection
-
-3. **Database connection issues**:
-   - Check `.env` file configuration
-   - Ensure database server is running
-   - Verify database credentials
+The feature tests seed the real data into an in-memory SQLite database and check the public pages, the trip planner matching and access rules.
